@@ -43,10 +43,7 @@ namespace ScaffoldHandler
                 {
                     text += "?";
                 }
-                //var r = { "property-entitybase", item.IsPrimaryKey() };
                 var isnotbase = !r.Any(s => s.ToLower() == item.Name.ToLower());
-                //var isbase = item.Name == "Id" ? true : false;
-
                 bool flag = UseNullableReferenceTypes && (item.ClrType.IsValueType || item.IsNullable);
                 Dictionary<string, object> obj = new Dictionary<string, object>
                 {
@@ -67,8 +64,6 @@ namespace ScaffoldHandler
             }
 
             List<Dictionary<string, object>> value = EntityTypeTransformationService.TransformProperties(entityType, list);
-
-            //var transformedProperties = EntityTypeTransformationService.TransformProperties(properties);
 
             // Add to transformed properties
             for (int i = 0; i < value.Count; i++)
