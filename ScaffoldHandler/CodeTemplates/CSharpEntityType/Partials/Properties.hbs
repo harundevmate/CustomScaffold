@@ -1,0 +1,27 @@
+﻿{{#each properties}}
+{{#if property-comment}}
+
+        /// <summary>
+{{property-comment}}
+        /// </summary>
+{{/if}}
+{{#each property-annotations}}
+        {{{property-annotation}}}
+{{/each}}
+        {{#if property-not-base}}
+        public {{property-type}} {{property-name}} { get; set; }
+        {{/if}}
+{{/each}}
+{{#if nav-properties}}
+
+{{#each nav-properties}}
+{{#each nav-property-annotations}}
+        {{{nav-property-annotation}}}
+{{/each}}
+{{#if nav-property-collection}}
+        public virtual ICollection<{{nav-property-type}}> {{nav-property-name}} { get; set; }
+{{else}}
+        public virtual {{nav-property-type}} {{nav-property-name}} { get; set; }
+{{/if}}
+{{/each}}
+{{/if}}
