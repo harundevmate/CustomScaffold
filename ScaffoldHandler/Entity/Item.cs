@@ -1,7 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using Shared;
 
-namespace ScaffoldHandler.Models
+namespace ScaffoldHandler.Entity
 {
     public partial class Item : EntityBase
     {

@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
-using ScaffoldHandler.Models;
+using ScaffoldHandler.Entity;
 
-namespace ScaffoldHandler.Contexts
+namespace ScaffoldHandler.Context
 {
     public partial class AppDbContext : DbContext
     {
