@@ -10,7 +10,7 @@ namespace ScaffoldHandler
     {
         public void ConfigureDesignTimeServices(IServiceCollection services)
         {
-            //Debugger.Launch();
+            Debugger.Launch();
 
             services.AddHandlebarsScaffolding(options =>
             {
