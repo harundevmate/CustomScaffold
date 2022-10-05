@@ -6,8 +6,10 @@ using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Scaffolding;
 using Microsoft.Extensions.Options;
+using Shared;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
@@ -77,8 +79,213 @@ namespace ScaffoldHandler
             }
             TemplateData.Add("namespace", contextNamespace);
             GenerateClass(model, contextName, connectionString, suppressConnectionStringWarning, suppressOnConfiguring);
+            //Add
+            GenerateDTOs(model);
             return DbContextTemplateService.GenerateDbContext(TemplateData);
         }
+
+        #region Generate
+        private void GenerateDTOs(IModel model)
+        {
+            Check.NotNull(model, nameof(model));
+
+            var sb = new IndentedStringBuilder();
+            using (sb.Indent())
+            using (sb.Indent())
+            {
+                TemplateData.TryGetValue("namespace", out var _namespace);
+                var _namespaces = _namespace.ToString().Split(".");
+                var dbContextpath = _namespaces[^1].ToString();
+
+
+                //string path = "ApiModels";
+                //string OriPath = "DarkUnionEngine.Infrastructure";
+                //string NewPath = "DarkUnionEngine.API";
+                //var assemblyDirectory = Directory.GetCurrentDirectory().Replace(OriPath, "");
+
+                //var localDirectory = Path.Combine(assemblyDirectory, NewPath,path);
+
+                //Debugger.Launch();
+                string path = "Dto";
+                //var assemblyDirectory = Directory.GetCurrentDirectory();
+                //var localDirectory = Path.Combine(assemblyDirectory,path);
+
+                var dir = $"{HelperScaffold.DirInfrastructure}\\{path}";
+                Console.Write(dir);
+                if (!Directory.Exists(dir))
+                {
+                    Directory.CreateDirectory(dir);
+                }
+                foreach (var entityType in model.GetScaffoldEntityTypes(_options.Value))
+                {
+                    using StreamWriter outputFile = new StreamWriter(Path.Combine(dir, /*entityType.DisplayName()*/entityType.Name + "DTO.cs"));
+                    outputFile.WriteLine("using System;");
+                    outputFile.WriteLine("using System.Collections.Generic;");
+                    outputFile.WriteLine("using Shared;");
+                    outputFile.WriteLine("using System.ComponentModel.DataAnnotations;");
+                    outputFile.WriteLine("namespace DarkUnionEngine.Infrastructure.Data.Dto");
+                    outputFile.WriteLine("{");
+
+                    outputFile.WriteLine("  public partial class " + /*entityType.DisplayName()*/entityType.Name + "DTO");
+                    outputFile.WriteLine("  {");
+
+                    foreach (var property in entityType.GetProperties().OrderBy(p => p.GetColumnOrder()))
+                    {
+                        //var result = Array.FindAll(_options?.Value?.ExcludeFieldsAuditTrail, element => element == property.Name);
+                        //var result = Array.FindAll(HelperScaffold.ExcludeField, element => element == property.Name);
+
+                        //if (result.Count() == 0)
+                        //{
+                        //    //if (!property.IsNullable && property.ClrType.IsNullableType())
+                        //    //{
+                        //    //    outputFile.WriteLine("      [Required]");
+                        //    //}
+                        //    outputFile.WriteLine("      public " + CSharpHelper.Reference(property.ClrType) + " " + property.Name + " { get; set; }");
+                        //}
+
+                        outputFile.WriteLine("      public " + CSharpHelper.Reference(property.ClrType) + " " + property.Name + " { get; set; }");
+                    }
+
+                    Check.NotNull(entityType, nameof(entityType));
+
+                    var sortedNavigations = entityType.GetScaffoldNavigations(_options.Value)
+                        .OrderBy(n => n.IsOnDependent ? 0 : 1)
+                        .ThenBy(n => n.IsCollection ? 1 : 0);
+
+                    if (sortedNavigations.Any())
+                    {
+                        var navProperties = new List<Dictionary<string, object>>();
+
+                        foreach (var navigation in sortedNavigations)
+                        {
+                            if (navigation.IsCollection)
+                            {
+                                outputFile.WriteLine("      //public virtual ICollection<" + navigation.TargetEntityType.Name + "DTO>" + navigation.Name + " { get; set; }");
+                            }
+                            else
+                            {
+                                outputFile.WriteLine("      //public virtual " + navigation.TargetEntityType.Name + "DTO " + navigation.Name + " { get; set; }");
+                            }
+                        }
+                    }
+
+                    outputFile.WriteLine("  }");
+
+                    outputFile.WriteLine("");
+
+                    outputFile.WriteLine("  public partial class " + entityType.Name + $"DTOWithDetail : {nameof(EntityBase)}");
+                    //if (entityType.DisplayName() == "AspNetUsers")
+                    //{
+                    //    outputFile.WriteLine("  public partial class " + entityType.Name + "DTOWithDetail : BaseEntityIdString");
+
+                    //}
+                    //else
+                    //{
+                    //    outputFile.WriteLine("  public partial class " + entityType.Name + "DTOWithDetail : BaseEntity");
+
+                    //}
+                    outputFile.WriteLine("  {");
+
+                    //foreach (var property in entityType.GetProperties().OrderBy(p => p.GetColumnOrdinal()))
+                    //{
+                    //    var result = Array.FindAll(_options?.Value?.ExcludeFieldsAuditTrail, element => element == property.Name);
+
+                    //    if (result.Count() == 0)
+                    //    {
+                    //        //if (!property.IsNullable && property.ClrType.IsNullableType())
+                    //        //{
+                    //        //    outputFile.WriteLine("      [Required]");
+                    //        //}
+
+                    //        if (property.Name.ToLower() == "id")
+                    //        {
+                    //            outputFile.WriteLine("      //public " + CSharpHelper.Reference(property.ClrType) + " " + property.Name + " { get; set; }");
+                    //        }
+                    //        else
+                    //        {
+                    //            if (property.Name == "IsDeleted")
+                    //            {
+                    //                outputFile.WriteLine("      public bool? IsDeleted { get; set; }");
+                    //            }
+                    //            else
+                    //            {
+                    //                outputFile.WriteLine("      public " + CSharpHelper.Reference(property.ClrType) + " " + property.Name + " { get; set; }");
+                    //            }
+                    //        }
+                    //        //outputFile.WriteLine("      public " + CSharpHelper.Reference(property.ClrType) + " " + property.Name + " { get; set; }");
+                    //    }
+                    //}
+
+                    Check.NotNull(entityType, nameof(entityType));
+
+                    if (sortedNavigations.Any())
+                    {
+                        var navProperties = new List<Dictionary<string, object>>();
+
+                        foreach (var navigation in sortedNavigations)
+                        {
+                            if (navigation.IsCollection)
+                            {
+                                outputFile.WriteLine("      //public virtual ICollection<" + navigation.TargetEntityType.Name + "DTO>" + navigation.Name + " { get; set; }");
+                            }
+                            else
+                            {
+                                outputFile.WriteLine("      //public virtual " + navigation.TargetEntityType.Name + "DTO " + navigation.Name + " { get; set; }");
+                            }
+                        }
+                    }
+
+                    outputFile.WriteLine("  }");
+                    outputFile.WriteLine("}");
+                }
+
+                //localDirectory = Path.Combine(assemblyDirectory, dbContextpath, "");
+                ////automapper
+                //using StreamWriter outputFileAutoMapper = new StreamWriter(Path.Combine(localDirectory, "MappingProfile.cs"));
+                //outputFileAutoMapper.WriteLine("using AutoMapper;");
+                //outputFileAutoMapper.WriteLine("using AutoMapper.Configuration;");
+                //outputFileAutoMapper.WriteLine("using DarkUnionEngine.Core.Entities;");
+                //outputFileAutoMapper.WriteLine("using DarkUnionEngine.Infrastructure.Data.Dto;");
+
+                //outputFileAutoMapper.WriteLine("namespace DarkUnionEngine.Infrastructure.Data");
+                //outputFileAutoMapper.WriteLine("    {");
+                //outputFileAutoMapper.WriteLine("        public class MappingProfile: MapperConfigurationExpression ");
+                //outputFileAutoMapper.WriteLine("        {");
+                //outputFileAutoMapper.WriteLine("            public MappingProfile()");
+                //outputFileAutoMapper.WriteLine("            {");
+                //foreach (var entityType in model.GetScaffoldEntityTypes(_options.Value))
+                //{
+                //    outputFileAutoMapper.WriteLine("              //" + entityType.DisplayName());
+                //    outputFileAutoMapper.WriteLine("              CreateMap<" + entityType.DisplayName() + "," + entityType.DisplayName() + "DTO>();");
+                //    outputFileAutoMapper.WriteLine("              CreateMap<" + entityType.DisplayName() + "DTO," + entityType.DisplayName() + ">();");
+
+                //    outputFileAutoMapper.WriteLine("              CreateMap<" + entityType.DisplayName() + "," + entityType.DisplayName() + "DTOWithDetail>();");
+                //    outputFileAutoMapper.WriteLine("              CreateMap<" + entityType.DisplayName() + "DTOWithDetail," + entityType.DisplayName() + ">();");
+
+                //    outputFileAutoMapper.WriteLine("              CreateMap<" + entityType.DisplayName() + "DTO," + entityType.DisplayName() + "DTOWithDetail>();");
+                //    outputFileAutoMapper.WriteLine("              CreateMap<" + entityType.DisplayName() + "DTOWithDetail," + entityType.DisplayName() + "DTO>();");
+
+                //    outputFileAutoMapper.WriteLine("              CreateMap<" + entityType.DisplayName() + "," + entityType.DisplayName() + "DTOExt>();");
+                //    outputFileAutoMapper.WriteLine("              CreateMap<" + entityType.DisplayName() + "DTOExt," + entityType.DisplayName() + ">();");
+
+                //    outputFileAutoMapper.WriteLine("              CreateMap<" + entityType.DisplayName() + "DTO," + entityType.DisplayName() + "DTOExt>();");
+                //    outputFileAutoMapper.WriteLine("              CreateMap<" + entityType.DisplayName() + "DTOExt," + entityType.DisplayName() + "DTO>();");
+
+                //    outputFileAutoMapper.WriteLine("              CreateMap<" + entityType.DisplayName() + "DTOWithDetail," + entityType.DisplayName() + "DTOExt>();");
+                //    outputFileAutoMapper.WriteLine("              CreateMap<" + entityType.DisplayName() + "DTOExt," + entityType.DisplayName() + "DTOWithDetail>();");
+
+                //    outputFileAutoMapper.WriteLine(" ");
+
+                //}
+                //outputFileAutoMapper.WriteLine("            }");
+                //outputFileAutoMapper.WriteLine("        }");
+                //outputFileAutoMapper.WriteLine("    }");
+            }
+
+            var onDTOGenerate = sb.ToString();
+            TemplateData.Add("on-DTO-Generate", onDTOGenerate);
+        }
+        #endregion
 
         #region Private
 
