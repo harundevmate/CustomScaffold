@@ -1,18 +1,8 @@
-﻿using EntityFrameworkCore.Scaffolding.Handlebars;
-using HandlebarsDotNet;
-using Microsoft.EntityFrameworkCore.Design;
+﻿using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.EntityFrameworkCore.Scaffolding.Internal;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Options;
 using Shared;
-using System;
-using System.Collections;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Xml.Linq;
 
 namespace ScaffoldHandler
 {
@@ -40,6 +30,7 @@ namespace ScaffoldHandler
             //HandlebarsDotNet.Handlebars.RegisterHelper("ignore-property", ignoreProperty);
 
             services.AddSingleton<ICSharpEntityTypeGenerator, MyHbsCSharpEntityTypeGenerator>();
+            services.AddSingleton<ICSharpDbContextGenerator, MyHbsCSharpDbContextGenerator>();
         }
     }
 
