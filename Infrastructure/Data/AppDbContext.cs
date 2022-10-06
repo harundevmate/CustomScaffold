@@ -1,9 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using BusinessCore;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata;
 
-namespace ScaffoldHandler
+namespace Infrastructure
 {
     public partial class AppDbContext : DbContext
     {

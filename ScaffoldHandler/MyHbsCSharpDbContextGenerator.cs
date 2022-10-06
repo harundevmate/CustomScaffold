@@ -7,13 +7,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Scaffolding;
 using Microsoft.Extensions.Options;
 using Shared;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ScaffoldHandler
 {
@@ -78,7 +72,7 @@ namespace ScaffoldHandler
                     TemplateData.Add(templateDatum.Key, templateDatum.Value);
                 }
             }
-            TemplateData.Add("namespace", contextNamespace);
+            TemplateData.Add("namespace", HelperScaffold.NamespaceInfrastructure);
             GenerateClass(model, contextName, connectionString, suppressConnectionStringWarning, suppressOnConfiguring);
             //Add
             GenerateDTOs(model);
@@ -98,7 +92,7 @@ namespace ScaffoldHandler
                 var _namespaces = _namespace.ToString().Split(".");
                 var dbContextpath = _namespaces[^1].ToString();
                 string path = "Dto";
-                var dir = $"{HelperScaffold.DirInfrastructure}\\{path}";
+                var dir = $"{HelperScaffold.DirInfrastructure}\\Data\\{path}";
                 if (!Directory.Exists(dir))
                 {
                     Directory.CreateDirectory(dir);

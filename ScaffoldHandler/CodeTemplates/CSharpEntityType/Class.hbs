@@ -1,6 +1,6 @@
 ﻿{{> imports}}
 
-namespace {{namespace}}
+namespace BusinessCore
 {
     {{#if comment}}
     /// <summary>
@@ -10,7 +10,7 @@ namespace {{namespace}}
     {{#each class-annotations}}
     {{{class-annotation}}}
     {{/each}}
-    public partial class {{class}} : BaseEntity
+    public partial class {{class}} : {{base-class}}
     {
         {{{> constructor}}}
         {{{> properties}}}

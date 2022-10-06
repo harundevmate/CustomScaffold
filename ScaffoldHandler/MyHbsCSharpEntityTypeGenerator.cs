@@ -64,7 +64,6 @@ namespace ScaffoldHandler
 
             TemplateData.Add("properties", value);
         }
-
         protected override void GenerateClass(IEntityType entityType)
         {
             Check.NotNull(entityType, "entityType");
