@@ -1,19 +1,20 @@
 ﻿{{> dbimports}}
 
-namespace Infrastructure
+namespace {{namespace}}
 {
     public partial class {{class}} : DbContext
     {
-{{#if entity-type-errors}}
-{{#each entity-type-errors}}
-        {{{entity-type-error}}}
-{{/each}}
-
-{{/if}}
 
 {{{> dbconstructor}}}
 
 {{{> dbsets}}}
+{{#if entity-type-errors}}
+{{#each entity-type-errors}}
+{{{entity-type-error}}}
+{{/each}}
+
+{{/if}}
+
 {{{on-model-creating}}}
     }
 }

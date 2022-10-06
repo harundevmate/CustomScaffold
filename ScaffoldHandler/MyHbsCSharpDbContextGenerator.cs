@@ -111,7 +111,6 @@ namespace ScaffoldHandler
                 //var localDirectory = Path.Combine(assemblyDirectory,path);
 
                 var dir = $"{HelperScaffold.DirInfrastructure}\\{path}";
-                Console.Write(dir);
                 if (!Directory.Exists(dir))
                 {
                     Directory.CreateDirectory(dir);

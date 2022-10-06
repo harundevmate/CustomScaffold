@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using Shared;
 
-namespace BusinessCore
+namespace ScaffoldHandler
 {
     public partial class UnitMeasure : EntityBase
     {

@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.Extensions.Options;
 using Shared;
+using System.Diagnostics;
 using System.Security;
 
 namespace ScaffoldHandler
@@ -28,6 +29,7 @@ namespace ScaffoldHandler
                                        orderby p.GetColumnOrder() ?? (-1)
                                        select p)
             {
+                if (r.Any(s => s == item.Name)) continue;
                 PropertyAnnotationsData = new List<Dictionary<string, object>>();
                 if (UseDataAnnotations)
                 {
@@ -39,7 +41,6 @@ namespace ScaffoldHandler
                 {
                     text += "?";
                 }
-                var isnotbase = !r.Any(s => s.ToLower() == item.Name.ToLower());
                 bool flag = UseNullableReferenceTypes && (item.ClrType.IsValueType || item.IsNullable);
                 Dictionary<string, object> obj = new Dictionary<string, object>
                 {
@@ -50,7 +51,7 @@ namespace ScaffoldHandler
                     // Add new item to template data
                     { "property-isprimarykey", item.IsKey() },
                     //{ "property-isforeignkey", item.IsForeignKey() },
-                    { "property-not-base",  isnotbase}
+                    //{ "property-not-base",  isnotbase}
                 };
                 IOptions<HandlebarsScaffoldingOptions> options = _options;
                 obj.Add("property-comment", (options != null && options.Value?.GenerateComments == true) ? GenerateComment(item.GetComment(), 2) : null);
@@ -61,15 +62,56 @@ namespace ScaffoldHandler
 
             List<Dictionary<string, object>> value = EntityTypeTransformationService.TransformProperties(entityType, list);
 
-            // Add to transformed properties
-            for (int i = 0; i < value.Count; i++)
+            TemplateData.Add("properties", value);
+        }
+
+        protected override void GenerateClass(IEntityType entityType)
+        {
+            Check.NotNull(entityType, "entityType");
+            if (UseDataAnnotations)
             {
-                value[i].Add("property-isprimarykey", list[i]["property-isprimarykey"]);
-                value[i].Add("property-not-base", list[i]["property-not-base"]);
+                GenerateEntityTypeDataAnnotations(entityType);
             }
 
+            string value = EntityTypeTransformationService.TransformTypeEntityName(entityType.Name);
+            IOptions<HandlebarsScaffoldingOptions> options = _options;
+            if (options != null && options.Value?.GenerateComments == true)
+            {
+                TemplateData.Add("comment", GenerateComment(entityType.GetComment(), 1));
+            }
+            TemplateData.Add("class", value);
+            GenerateConstructor(entityType);
+            GenerateProperties(entityType);
+            GenerateNavigationProperties(entityType);
+            GenerateSkipNavigationProperties(entityType);
+        }
 
-            TemplateData.Add("properties", value);
+        protected override void GenerateConstructor(IEntityType entityType)
+        {
+            Check.NotNull(entityType, "entityType");
+            List<INavigationBase> list = (from n in entityType.GetScaffoldNavigations(_options.Value).Cast<INavigationBase>().Concat(entityType.GetScaffoldSkipNavigations(_options.Value))
+                                          where n.IsCollection
+                                          select n).ToList();
+            if (list.Count <= 0)
+            {
+                return;
+            }
+
+            List<Dictionary<string, object>> list2 = new List<Dictionary<string, object>>();
+            foreach (INavigationBase item in list)
+            {
+                list2.Add(new Dictionary<string, object>
+                {
+                    { "property-name", item.Name },
+                    {
+                        "property-type",
+                        item.TargetEntityType.Name
+                    }
+                });
+            }
+
+            List<Dictionary<string, object>> value = EntityTypeTransformationService.TransformConstructor(entityType, list2);
+            TemplateData.Add("lines", value);
         }
 
         private string GenerateComment(string comment, int indents)

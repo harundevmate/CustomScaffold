@@ -2,9 +2,8 @@
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
-using BusinessCore;
 
-namespace Infrastructure
+namespace ScaffoldHandler
 {
     public partial class AppDbContext : DbContext
     {
@@ -15,6 +14,7 @@ namespace Infrastructure
 
         public virtual DbSet<Item> Items { get; set; }
         public virtual DbSet<UnitMeasure> UnitMeasures { get; set; }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Item>(entity =>
