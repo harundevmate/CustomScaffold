@@ -4,7 +4,7 @@ using Shared;
 
 namespace ScaffoldHandler
 {
-    public partial class UnitMeasure : EntityBase
+    public partial class UnitMeasure : BaseEntity
     {
         public UnitMeasure()
         {

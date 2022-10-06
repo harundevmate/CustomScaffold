@@ -19,7 +19,7 @@ namespace DarkUnionEngine.Infrastructure.Data.Dto
       //public virtual ICollection<ItemDTO>Items { get; set; }
   }
 
-  public partial class UnitMeasureDTOWithDetail : EntityBase
+  public partial class UnitMeasureDTOWithDetail : BaseEntity
   {
       //public virtual ICollection<ItemDTO>Items { get; set; }
   }

@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Shared
 {
-    public class EntityBase
+    public class BaseEntity
     {
         public Guid Id { get; set; }
 

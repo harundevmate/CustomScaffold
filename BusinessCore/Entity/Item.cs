@@ -4,7 +4,7 @@ using Shared;
 
 namespace ScaffoldHandler
 {
-    public partial class Item : EntityBase
+    public partial class Item : BaseEntity
     {
         public string Code { get; set; }
         public string Name { get; set; }

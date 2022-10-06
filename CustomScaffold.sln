@@ -12,9 +12,11 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Readme", "Readme", "{A2013D
 		readme.md = readme.md
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Infrastructure", "Infrastructure\Infrastructure.csproj", "{1A063279-834C-426C-B532-821D2B374040}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Infrastructure", "Infrastructure\Infrastructure.csproj", "{1A063279-834C-426C-B532-821D2B374040}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BusinessCore", "BusinessCore\BusinessCore.csproj", "{9444A0D5-5A2E-486B-AA8D-A118E4660078}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BusinessCore", "BusinessCore\BusinessCore.csproj", "{9444A0D5-5A2E-486B-AA8D-A118E4660078}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Api", "Api\Api.csproj", "{22F8B756-9774-41BB-B42B-F8765DFA8CE0}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -38,6 +40,10 @@ Global
 		{9444A0D5-5A2E-486B-AA8D-A118E4660078}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9444A0D5-5A2E-486B-AA8D-A118E4660078}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9444A0D5-5A2E-486B-AA8D-A118E4660078}.Release|Any CPU.Build.0 = Release|Any CPU
+		{22F8B756-9774-41BB-B42B-F8765DFA8CE0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{22F8B756-9774-41BB-B42B-F8765DFA8CE0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{22F8B756-9774-41BB-B42B-F8765DFA8CE0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{22F8B756-9774-41BB-B42B-F8765DFA8CE0}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

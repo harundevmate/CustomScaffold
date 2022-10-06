@@ -23,7 +23,7 @@ namespace ScaffoldHandler
                 options.TemplateData = new Dictionary<string, object>()
                 {
                     {
-                        "base-class",nameof(EntityBase)
+                        "base-class",nameof(BaseEntity)
                     }
                 };
             });

@@ -22,7 +22,7 @@ namespace ScaffoldHandler
         }
         protected override void GenerateProperties(IEntityType entityType)
         {
-            var r = typeof(EntityBase).GetProperties().Select(s => s.Name);
+            var r = typeof(BaseEntity).GetProperties().Select(s => s.Name);
             //Check.NotNull(entityType, "entityType");
             List<Dictionary<string, object>> list = new List<Dictionary<string, object>>();
             foreach (IProperty item in from p in entityType.GetProperties()
