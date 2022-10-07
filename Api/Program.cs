@@ -1,7 +1,10 @@
 using AutoMapper;
 using Microsoft.Extensions.DependencyInjection;
 using Infrastructure.Data;
-
+using Shared.Interfaces;
+using Infrastructure.Data.Repository;
+using Infrastructure;
+using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -15,10 +18,17 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddAutoMapper(typeof(MapperProfile));
 builder.Services.AddAutoMapper(typeof(MapperProfileExt));
 
-#region Add Depedency Injection here
+var conDefault = builder.Configuration.GetConnectionString("Default");
+
+builder.Services.AddDbContext<AppDbContext>(options => options.UseSqlServer(conDefault));
+
+builder.Services.AddTransient<IRepository, Repository>();
+
+#region[DI] Add Depedency Injection here
 #endregion
 
-#region Auto Create Depedency Injection
+#region[DI2]Auto Create Depedency Injection
+
 #endregion
 
 var app = builder.Build();

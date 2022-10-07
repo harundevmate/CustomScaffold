@@ -123,25 +123,13 @@ namespace ScaffoldHandler
                     outputFile.WriteLine("\t\t{");
                     outputFile.WriteLine("\t\t\tthis.repository = repository;");
                     outputFile.WriteLine("\t\t\tthis.mapper = mapper;");
-                    outputFile.WriteLine("\t\t\tthis.mapper = mapper;");
-                    outputFile.WriteLine("\t\t\tthis.mapper = mapper;");
                     outputFile.WriteLine("\t\t}\n");
-                    outputFile.WriteLine($"\t\t// GET: api/{entityType.Name}");
-                    outputFile.WriteLine($"\t\t[HttpGet]");
-                    outputFile.WriteLine($"\t\tpublic async Task<IActionResult> ListAsync()");
-                    outputFile.WriteLine("\t\t{");
-                    outputFile.WriteLine("\t\t\ttry");
-                    outputFile.WriteLine("\t\t\t{");
-                    outputFile.WriteLine($"\t\t\t\tvar items = await repository.GetQueryable<{entityType.Name}>().AsNoTracking().ToListAsync();");
-                    outputFile.WriteLine($"\t\t\t\tvar result = mapper.Map<List<{entityType.Name}DTO>>(items);");
-                    outputFile.WriteLine($"\t\t\t\treturn Requests.Response(this, new ApiStatus(200), result, Constant.Message.Success);");
-                    outputFile.WriteLine("\t\t\t\t}");
-                    outputFile.WriteLine($"\t\t\t\tcatch (Exception ex)");
-                    outputFile.WriteLine("\t\t\t\t{");
-                    outputFile.WriteLine("\t\t\t\t\treturn Requests.Response(this, new ApiStatus(500), null, ex.Message);");
-                    outputFile.WriteLine("\t\t\t\t}");
-                    outputFile.WriteLine("\t\t\t}");
-                    outputFile.WriteLine("\t\t}");
+
+                    GenerateGetListMethod(outputFile,entityType);
+
+                    GenerateGeByIdMethod(outputFile,entityType);
+
+                    outputFile.WriteLine("\t}");
                     outputFile.WriteLine("}");
 
 
@@ -151,6 +139,47 @@ namespace ScaffoldHandler
             var onDTOGenerate = sb.ToString();
             TemplateData.Add("on-Controller-Generate", onDTOGenerate);
         }
+
+        private void GenerateGetListMethod(StreamWriter outputFile,IEntityType entityType)
+        {
+
+            outputFile.WriteLine($"\t\t// GET: api/{entityType.Name}");
+            outputFile.WriteLine($"\t\t[HttpGet]");
+            outputFile.WriteLine($"\t\tpublic async Task<IActionResult> ListAsync()");
+            outputFile.WriteLine("\t\t{");
+            outputFile.WriteLine("\t\t\ttry");
+            outputFile.WriteLine("\t\t\t{");
+            outputFile.WriteLine($"\t\t\t\tvar items = await repository.GetQueryable<{entityType.Name}>().AsNoTracking().ToListAsync();");
+            outputFile.WriteLine($"\t\t\t\tvar result = mapper.Map<List<{entityType.Name}DTO>>(items);");
+            outputFile.WriteLine($"\t\t\t\treturn Requests.Response(this, new ApiStatus(200), result, Constant.Message.Success);");
+            outputFile.WriteLine("\t\t\t}");
+            outputFile.WriteLine($"\t\t\tcatch (Exception ex)");
+            outputFile.WriteLine("\t\t\t{");
+            outputFile.WriteLine("\t\t\t\treturn Requests.Response(this, new ApiStatus(500), null, ex.Message);");
+            outputFile.WriteLine("\t\t\t}");
+            outputFile.WriteLine("\t\t}");
+        }
+
+        private void GenerateGeByIdMethod(StreamWriter outputFile,IEntityType entityType)
+        {
+            string param = @"""{id}""";
+            outputFile.WriteLine($"\t\t// GET: api/{entityType.Name}");
+            outputFile.WriteLine($"\t\t[HttpGet({param})]");
+            outputFile.WriteLine($"\t\tpublic async Task<IActionResult> GetByIdAsync(Guid id)");
+            outputFile.WriteLine("\t\t{");
+            outputFile.WriteLine("\t\t\ttry");
+            outputFile.WriteLine("\t\t\t{");
+            outputFile.WriteLine($"\t\t\t\tvar items = await repository.GetByIdAsync<{entityType.Name}>(id);");
+            outputFile.WriteLine($"\t\t\t\tvar result = mapper.Map<{entityType.Name}>(items);");
+            outputFile.WriteLine($"\t\t\t\treturn Requests.Response(this, new ApiStatus(200), result, Constant.Message.Success);");
+            outputFile.WriteLine("\t\t\t}");
+            outputFile.WriteLine($"\t\t\tcatch (Exception ex)");
+            outputFile.WriteLine("\t\t\t{");
+            outputFile.WriteLine("\t\t\t\treturn Requests.Response(this, new ApiStatus(500), null, ex.Message);");
+            outputFile.WriteLine("\t\t\t}");
+            outputFile.WriteLine("\t\t}");
+        }
+
         private void GenerateDTOs(IModel model)
         {
             Check.NotNull(model, nameof(model));

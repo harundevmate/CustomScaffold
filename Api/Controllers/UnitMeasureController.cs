@@ -18,8 +18,6 @@ namespace Api
 		{
 			this.repository = repository;
 			this.mapper = mapper;
-			this.mapper = mapper;
-			this.mapper = mapper;
 		}
 
 		// GET: api/UnitMeasure
@@ -31,11 +29,26 @@ namespace Api
 				var items = await repository.GetQueryable<UnitMeasure>().AsNoTracking().ToListAsync();
 				var result = mapper.Map<List<UnitMeasureDTO>>(items);
 				return Requests.Response(this, new ApiStatus(200), result, Constant.Message.Success);
-				}
-				catch (Exception ex)
-				{
-					return Requests.Response(this, new ApiStatus(500), null, ex.Message);
-				}
+			}
+			catch (Exception ex)
+			{
+				return Requests.Response(this, new ApiStatus(500), null, ex.Message);
 			}
 		}
+		// GET: api/UnitMeasure
+		[HttpGet("{id}")]
+		public async Task<IActionResult> GetByIdAsync(Guid id)
+		{
+			try
+			{
+				var items = await repository.GetByIdAsync<UnitMeasure>(id);
+				var result = mapper.Map<UnitMeasure>(items);
+				return Requests.Response(this, new ApiStatus(200), result, Constant.Message.Success);
+			}
+			catch (Exception ex)
+			{
+				return Requests.Response(this, new ApiStatus(500), null, ex.Message);
+			}
+		}
+	}
 }
