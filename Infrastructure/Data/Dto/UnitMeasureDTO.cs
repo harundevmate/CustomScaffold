@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using Shared;
 using System.ComponentModel.DataAnnotations;
-namespace DarkUnionEngine.Infrastructure.Data.Dto
+namespace Infrastructure
 {
   public partial class UnitMeasureDTO
   {

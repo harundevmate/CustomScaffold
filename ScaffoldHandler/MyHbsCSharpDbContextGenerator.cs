@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Scaffolding;
 using Microsoft.Extensions.Options;
 using Shared;
+using Shared.Interfaces;
 using System.Runtime.CompilerServices;
 
 namespace ScaffoldHandler
@@ -76,10 +77,80 @@ namespace ScaffoldHandler
             GenerateClass(model, contextName, connectionString, suppressConnectionStringWarning, suppressOnConfiguring);
             //Add
             GenerateDTOs(model);
+            GenerateController(model);
             return DbContextTemplateService.GenerateDbContext(TemplateData);
         }
 
         #region Generate
+        private void GenerateController(IModel model)
+        {
+            Check.NotNull(model, nameof(model));
+
+            var sb = new IndentedStringBuilder();
+            using (sb.Indent())
+            using (sb.Indent())
+            {
+                //TemplateData.TryGetValue("namespace", out var _namespace);
+                //var _namespaces = _namespace.ToString().Split(".");
+                //var dbContextpath = _namespaces[^1].ToString();
+                string path = "Dto";
+                var dir = $"{HelperScaffold.DirApi}\\Controllers";
+                if (!Directory.Exists(dir))
+                {
+                    Directory.CreateDirectory(dir);
+                }
+                foreach (var entityType in model.GetScaffoldEntityTypes(_options.Value))
+                {
+                    using StreamWriter outputFile = new StreamWriter(Path.Combine(dir, /*entityType.DisplayName()*/entityType.Name + "Controller.cs"));
+
+                    outputFile.WriteLine("using Api.Controllers.Base;");
+                    outputFile.WriteLine("using Api.Error;");
+                    outputFile.WriteLine("using Api.Helper;");
+                    outputFile.WriteLine("using AutoMapper;");
+                    outputFile.WriteLine("using BusinessCore;");
+                    outputFile.WriteLine("using BusinessCore.Helper;");
+                    outputFile.WriteLine("using Infrastructure;");
+                    outputFile.WriteLine("using Microsoft.AspNetCore.Mvc;");
+                    outputFile.WriteLine("using Microsoft.EntityFrameworkCore;");
+                    outputFile.WriteLine("using Shared.Interfaces;");
+                    outputFile.WriteLine("namespace Api");
+                    outputFile.WriteLine("{");
+                    outputFile.WriteLine("\tpublic partial class " + entityType.Name + "Controller : BaseApiController");
+                    outputFile.WriteLine("\t{");
+                    outputFile.WriteLine("\t\tprivate readonly IRepository repository;");
+                    outputFile.WriteLine("\t\tprivate readonly IMapper mapper;");
+                    outputFile.WriteLine($"\t\tpublic {entityType.Name}Controller(IRepository repository, IMapper mapper) : base(repository, mapper)");
+                    outputFile.WriteLine("\t\t{");
+                    outputFile.WriteLine("\t\t\tthis.repository = repository;");
+                    outputFile.WriteLine("\t\t\tthis.mapper = mapper;");
+                    outputFile.WriteLine("\t\t\tthis.mapper = mapper;");
+                    outputFile.WriteLine("\t\t\tthis.mapper = mapper;");
+                    outputFile.WriteLine("\t\t}\n");
+                    outputFile.WriteLine($"\t\t// GET: api/{entityType.Name}");
+                    outputFile.WriteLine($"\t\t[HttpGet]");
+                    outputFile.WriteLine($"\t\tpublic async Task<IActionResult> ListAsync()");
+                    outputFile.WriteLine("\t\t{");
+                    outputFile.WriteLine("\t\t\ttry");
+                    outputFile.WriteLine("\t\t\t{");
+                    outputFile.WriteLine($"\t\t\t\tvar items = await repository.GetQueryable<{entityType.Name}>().AsNoTracking().ToListAsync();");
+                    outputFile.WriteLine($"\t\t\t\tvar result = mapper.Map<List<{entityType.Name}DTO>>(items);");
+                    outputFile.WriteLine($"\t\t\t\treturn Requests.Response(this, new ApiStatus(200), result, Constant.Message.Success);");
+                    outputFile.WriteLine("\t\t\t\t}");
+                    outputFile.WriteLine($"\t\t\t\tcatch (Exception ex)");
+                    outputFile.WriteLine("\t\t\t\t{");
+                    outputFile.WriteLine("\t\t\t\t\treturn Requests.Response(this, new ApiStatus(500), null, ex.Message);");
+                    outputFile.WriteLine("\t\t\t\t}");
+                    outputFile.WriteLine("\t\t\t}");
+                    outputFile.WriteLine("\t\t}");
+                    outputFile.WriteLine("}");
+
+
+                }
+            }
+
+            var onDTOGenerate = sb.ToString();
+            TemplateData.Add("on-Controller-Generate", onDTOGenerate);
+        }
         private void GenerateDTOs(IModel model)
         {
             Check.NotNull(model, nameof(model));
@@ -104,7 +175,7 @@ namespace ScaffoldHandler
                     outputFile.WriteLine("using System.Collections.Generic;");
                     outputFile.WriteLine("using Shared;");
                     outputFile.WriteLine("using System.ComponentModel.DataAnnotations;");
-                    outputFile.WriteLine("namespace DarkUnionEngine.Infrastructure.Data.Dto");
+                    outputFile.WriteLine("namespace Infrastructure");
                     outputFile.WriteLine("{");
 
                     outputFile.WriteLine("  public partial class " + /*entityType.DisplayName()*/entityType.Name + "DTO");

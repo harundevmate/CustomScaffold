@@ -10,11 +10,11 @@ using Microsoft.EntityFrameworkCore;
 using Shared.Interfaces;
 namespace Api
 {
-	public partial class ItemController : BaseApiController
+	public partial class UnitMeasureController : BaseApiController
 	{
 		private readonly IRepository repository;
 		private readonly IMapper mapper;
-		public ItemController(IRepository repository, IMapper mapper) : base(repository, mapper)
+		public UnitMeasureController(IRepository repository, IMapper mapper) : base(repository, mapper)
 		{
 			this.repository = repository;
 			this.mapper = mapper;
@@ -22,14 +22,14 @@ namespace Api
 			this.mapper = mapper;
 		}
 
-		// GET: api/Item
+		// GET: api/UnitMeasure
 		[HttpGet]
 		public async Task<IActionResult> ListAsync()
 		{
 			try
 			{
-				var items = await repository.GetQueryable<Item>().AsNoTracking().ToListAsync();
-				var result = mapper.Map<List<ItemDTO>>(items);
+				var items = await repository.GetQueryable<UnitMeasure>().AsNoTracking().ToListAsync();
+				var result = mapper.Map<List<UnitMeasureDTO>>(items);
 				return Requests.Response(this, new ApiStatus(200), result, Constant.Message.Success);
 				}
 				catch (Exception ex)
