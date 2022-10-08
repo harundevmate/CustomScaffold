@@ -82,6 +82,9 @@ namespace ScaffoldHandler
         }
 
         #region Generate
+
+        #region Controller
+
         private void GenerateController(IModel model)
         {
             Check.NotNull(model, nameof(model));
@@ -125,9 +128,11 @@ namespace ScaffoldHandler
                     outputFile.WriteLine("\t\t\tthis.mapper = mapper;");
                     outputFile.WriteLine("\t\t}\n");
 
-                    GenerateGetListMethod(outputFile,entityType);
-
-                    GenerateGeByIdMethod(outputFile,entityType);
+                    GenerateGetListMethod(outputFile, entityType);
+                    GenerateGeByIdMethod(outputFile, entityType);
+                    GenerateAddAsync(outputFile, entityType);
+                    GenerateUpdateAsync(outputFile, entityType);
+                    GenerateDeleteAsync(outputFile, entityType);    
 
                     outputFile.WriteLine("\t}");
                     outputFile.WriteLine("}");
@@ -140,7 +145,45 @@ namespace ScaffoldHandler
             TemplateData.Add("on-Controller-Generate", onDTOGenerate);
         }
 
-        private void GenerateGetListMethod(StreamWriter outputFile,IEntityType entityType)
+        private void GenerateDeleteAsync(StreamWriter outputFile, IEntityType entityType)
+        {
+            outputFile.WriteLine($"\t\t// DELETE: api/{entityType.Name}/1");
+            outputFile.WriteLine($"\t\t[HttpDelete(\"{{id}}\")]");
+            outputFile.WriteLine($"\t\tpublic async Task<IActionResult> DeleteAsync(Guid id)");
+            outputFile.WriteLine("\t\t{");
+            outputFile.WriteLine("\t\t\ttry");
+            outputFile.WriteLine("\t\t\t{");
+
+            
+            outputFile.WriteLine($"\t\t\t\tif (ValidateDelete(id))");
+            outputFile.WriteLine("\t\t\t\t{");
+
+            outputFile.WriteLine($"\t\t\t\t\tvar existingItems = await repository.GetByIdAsync<{entityType.Name}>(id);");
+            outputFile.WriteLine($"\t\t\t\t\tif (existingItems == null)");
+            outputFile.WriteLine("\t\t\t\t\t{");
+            outputFile.WriteLine($"\t\t\t\t\t\treturn Requests.Response(this, new ApiStatus(409), null, Constant.Message.NotFound);");
+            outputFile.WriteLine("\t\t\t\t\t}");
+
+            outputFile.WriteLine($"\t\t\t\t\tvar (Success, Message) = await repository.DeleteAsync<{entityType.Name}>(id);");
+            outputFile.WriteLine($"\t\t\t\t\treturn !Success && Message != \"\" ? Requests.Response(this, new ApiStatus(409), null, Message) : Requests.Response(this, new ApiStatus(200), null, Message);");
+
+            outputFile.WriteLine("\t\t\t\t}");
+
+            outputFile.WriteLine($"\t\t\t\telse");
+            outputFile.WriteLine("\t\t\t\t{");
+            outputFile.WriteLine("\t\t\t\t\treturn Requests.Response(this, new ApiStatus(409), ModelState, \"\");");
+            outputFile.WriteLine("\t\t\t\t}");
+
+            outputFile.WriteLine($"\t\t\t\t\t");
+
+            outputFile.WriteLine("\t\t\t}");
+            outputFile.WriteLine($"\t\t\tcatch (Exception ex)");
+            outputFile.WriteLine("\t\t\t{");
+            outputFile.WriteLine("\t\t\t\treturn Requests.Response(this, new ApiStatus(500), null, ex.Message);");
+            outputFile.WriteLine("\t\t\t}");
+            outputFile.WriteLine("\t\t}");
+        }
+        private void GenerateGetListMethod(StreamWriter outputFile, IEntityType entityType)
         {
 
             outputFile.WriteLine($"\t\t// GET: api/{entityType.Name}");
@@ -160,7 +203,7 @@ namespace ScaffoldHandler
             outputFile.WriteLine("\t\t}");
         }
 
-        private void GenerateGeByIdMethod(StreamWriter outputFile,IEntityType entityType)
+        private void GenerateGeByIdMethod(StreamWriter outputFile, IEntityType entityType)
         {
             string param = @"""{id}""";
             outputFile.WriteLine($"\t\t// GET: api/{entityType.Name}");
@@ -180,6 +223,83 @@ namespace ScaffoldHandler
             outputFile.WriteLine("\t\t}");
         }
 
+        private void GenerateAddAsync(StreamWriter outputFile, IEntityType entityType)
+        {
+            outputFile.WriteLine($"\t\t// POST: api/{entityType.Name}");
+            outputFile.WriteLine($"\t\t[HttpPost]");
+            outputFile.WriteLine($"\t\tpublic async Task<IActionResult> AddAsync([FromBody] {entityType.Name}DTO {entityType.Name}DTO)");
+            outputFile.WriteLine("\t\t{");
+            outputFile.WriteLine("\t\t\ttry");
+            outputFile.WriteLine("\t\t\t{");
+
+            outputFile.WriteLine($"\t\t\t\tvar item = mapper.Map<{entityType.Name}>({entityType.Name}DTO);");
+            outputFile.WriteLine($"\t\t\t\tif (ModelState.IsValid && ValidateCreate(item))");
+
+            outputFile.WriteLine("\t\t\t\t{");
+
+            outputFile.WriteLine($"\t\t\t\t\titem.Id = Guid.NewGuid();");
+            outputFile.WriteLine($"\t\t\t\t\tvar (Success, Message) = await repository.AddAsync<{entityType.Name}>(item);");
+            outputFile.WriteLine($"\t\t\t\t\treturn !Success && Message != \"\" ? Requests.Response(this, new ApiStatus(409), null, Message) : Requests.Response(this, new ApiStatus(200), null, Message);");
+
+            outputFile.WriteLine("\t\t\t\t}");
+
+            outputFile.WriteLine($"\t\t\t\telse");
+            outputFile.WriteLine("\t\t\t\t{");
+            outputFile.WriteLine("\t\t\t\t\treturn Requests.Response(this, new ApiStatus(409), ModelState, \"\");");
+            outputFile.WriteLine("\t\t\t\t}");
+
+            outputFile.WriteLine($"\t\t\t\t\t");
+
+            outputFile.WriteLine("\t\t\t}");
+            outputFile.WriteLine($"\t\t\tcatch (Exception ex)");
+            outputFile.WriteLine("\t\t\t{");
+            outputFile.WriteLine("\t\t\t\treturn Requests.Response(this, new ApiStatus(500), null, ex.Message);");
+            outputFile.WriteLine("\t\t\t}");
+            outputFile.WriteLine("\t\t}");
+        }
+
+        private void GenerateUpdateAsync(StreamWriter outputFile, IEntityType entityType)
+        {
+            outputFile.WriteLine($"\t\t// PATCH: api/{entityType.Name}");
+            outputFile.WriteLine($"\t\t[HttpPatch]");
+            outputFile.WriteLine($"\t\tpublic async Task<IActionResult> UpdateAsync([FromBody] {entityType.Name}DTO {entityType.Name}DTO)");
+            outputFile.WriteLine("\t\t{");
+            outputFile.WriteLine("\t\t\ttry");
+            outputFile.WriteLine("\t\t\t{");
+
+            outputFile.WriteLine($"\t\t\t\tvar existingItems = await repository.GetByIdAsync<{entityType.Name}>({entityType.Name}DTO.Id);");
+
+            outputFile.WriteLine($"\t\t\t\tif (existingItems == null)");
+            outputFile.WriteLine("\t\t\t\t{");
+            outputFile.WriteLine($"\t\t\t\t\treturn Requests.Response(this, new ApiStatus(409), null, Constant.Message.NotFound);");
+            outputFile.WriteLine("\t\t\t\t}");
+            outputFile.WriteLine($"\t\t\t\tvar item = mapper.Map<{entityType.Name}DTO, {entityType.Name}>({entityType.Name}DTO, existingItems);");
+
+            outputFile.WriteLine($"\t\t\t\tif (ModelState.IsValid && ValidateUpdate(item))");
+
+            outputFile.WriteLine("\t\t\t\t{");
+
+            outputFile.WriteLine($"\t\t\t\t\tvar (Success, Message) = await repository.UpdateAsync<{entityType.Name}>(item);");
+            outputFile.WriteLine($"\t\t\t\t\treturn !Success && Message != \"\" ? Requests.Response(this, new ApiStatus(409), null, Message) : Requests.Response(this, new ApiStatus(200), null, Message);");
+
+            outputFile.WriteLine("\t\t\t\t}");
+
+            outputFile.WriteLine($"\t\t\t\telse");
+            outputFile.WriteLine("\t\t\t\t{");
+            outputFile.WriteLine("\t\t\t\t\treturn Requests.Response(this, new ApiStatus(409), ModelState, \"\");");
+            outputFile.WriteLine("\t\t\t\t}");
+
+            outputFile.WriteLine($"\t\t\t\t\t");
+
+            outputFile.WriteLine("\t\t\t}");
+            outputFile.WriteLine($"\t\t\tcatch (Exception ex)");
+            outputFile.WriteLine("\t\t\t{");
+            outputFile.WriteLine("\t\t\t\treturn Requests.Response(this, new ApiStatus(500), null, ex.Message);");
+            outputFile.WriteLine("\t\t\t}");
+            outputFile.WriteLine("\t\t}");
+        }
+
+        #endregion
         private void GenerateDTOs(IModel model)
         {
             Check.NotNull(model, nameof(model));

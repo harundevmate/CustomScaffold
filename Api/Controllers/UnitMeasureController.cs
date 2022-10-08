@@ -50,5 +50,84 @@ namespace Api
 				return Requests.Response(this, new ApiStatus(500), null, ex.Message);
 			}
 		}
+		// POST: api/UnitMeasure
+		[HttpPost]
+		public async Task<IActionResult> AddAsync([FromBody] UnitMeasureDTO UnitMeasureDTO)
+		{
+			try
+			{
+				var item = mapper.Map<UnitMeasure>(UnitMeasureDTO);
+				if (ModelState.IsValid && ValidateCreate(item))
+				{
+					item.Id = Guid.NewGuid();
+					var (Success, Message) = await repository.AddAsync<UnitMeasure>(item);
+					return !Success && Message != "" ? Requests.Response(this, new ApiStatus(409), null, Message) : Requests.Response(this, new ApiStatus(200), null, Message);
+				}
+				else
+				{
+					return Requests.Response(this, new ApiStatus(409), ModelState, "");
+				}
+					
+			}
+			catch (Exception ex)
+			{
+				return Requests.Response(this, new ApiStatus(500), null, ex.Message);
+			}
+		}
+		// PATCH: api/UnitMeasure
+		[HttpPatch]
+		public async Task<IActionResult> UpdateAsync([FromBody] UnitMeasureDTO UnitMeasureDTO)
+		{
+			try
+			{
+				var existingItems = await repository.GetByIdAsync<UnitMeasure>(UnitMeasureDTO.Id);
+				if (existingItems == null)
+				{
+					return Requests.Response(this, new ApiStatus(409), null, Constant.Message.NotFound);
+				}
+				var item = mapper.Map<UnitMeasureDTO, UnitMeasure>(UnitMeasureDTO, existingItems);
+				if (ModelState.IsValid && ValidateUpdate(item))
+				{
+					var (Success, Message) = await repository.UpdateAsync<UnitMeasure>(item);
+					return !Success && Message != "" ? Requests.Response(this, new ApiStatus(409), null, Message) : Requests.Response(this, new ApiStatus(200), null, Message);
+				}
+				else
+				{
+					return Requests.Response(this, new ApiStatus(409), ModelState, "");
+				}
+					
+			}
+			catch (Exception ex)
+			{
+				return Requests.Response(this, new ApiStatus(500), null, ex.Message);
+			}
+		}
+		// DELETE: api/UnitMeasure/1
+		[HttpDelete("{id}")]
+		public async Task<IActionResult> DeleteAsync(Guid id)
+		{
+			try
+			{
+				if (ValidateDelete(id))
+				{
+					var existingItems = await repository.GetByIdAsync<UnitMeasure>(id);
+					if (existingItems == null)
+					{
+						return Requests.Response(this, new ApiStatus(409), null, Constant.Message.NotFound);
+					}
+					var (Success, Message) = await repository.DeleteAsync<UnitMeasure>(id);
+					return !Success && Message != "" ? Requests.Response(this, new ApiStatus(409), null, Message) : Requests.Response(this, new ApiStatus(200), null, Message);
+				}
+				else
+				{
+					return Requests.Response(this, new ApiStatus(409), ModelState, "");
+				}
+					
+			}
+			catch (Exception ex)
+			{
+				return Requests.Response(this, new ApiStatus(500), null, ex.Message);
+			}
+		}
 	}
 }
