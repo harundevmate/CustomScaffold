@@ -1,133 +1,49 @@
-using Api.Controllers.Base;
-using Api.Error;
+﻿using Api.Controllers.Base;
 using Api.Helper;
-using AutoMapper;
-using BusinessCore;
-using BusinessCore.Helper;
-using Infrastructure;
+using BusinessCore.Interface;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using Shared.Interfaces;
-namespace Api
-{
-	public partial class UnitMeasureController : BaseApiController
-	{
-		private readonly IRepository repository;
-		private readonly IMapper mapper;
-		public UnitMeasureController(IRepository repository, IMapper mapper) : base(repository, mapper)
-		{
-			this.repository = repository;
-			this.mapper = mapper;
-		}
+using Shared;
+using Shared.Helper;
 
-		// GET: api/UnitMeasure
-		[HttpGet]
-		public async Task<IActionResult> ListAsync()
-		{
-			try
-			{
-				var items = await repository.GetQueryable<UnitMeasure>().AsNoTracking().ToListAsync();
-				var result = mapper.Map<List<UnitMeasureDTO>>(items);
-				return Requests.Response(this, new ApiStatus(200), result, Constant.Message.Success);
-			}
-			catch (Exception ex)
-			{
-				return Requests.Response(this, new ApiStatus(500), null, ex.Message);
-			}
-		}
-		// GET: api/UnitMeasure
-		[HttpGet("{id}")]
-		public async Task<IActionResult> GetByIdAsync(Guid id)
-		{
-			try
-			{
-				var items = await repository.GetByIdAsync<UnitMeasure>(id);
-				var result = mapper.Map<UnitMeasure>(items);
-				return Requests.Response(this, new ApiStatus(200), result, Constant.Message.Success);
-			}
-			catch (Exception ex)
-			{
-				return Requests.Response(this, new ApiStatus(500), null, ex.Message);
-			}
-		}
-		// POST: api/UnitMeasure
-		[HttpPost]
-		public async Task<IActionResult> AddAsync([FromBody] UnitMeasureDTO UnitMeasureDTO)
-		{
-			try
-			{
-				var item = mapper.Map<UnitMeasure>(UnitMeasureDTO);
-				if (ModelState.IsValid && ValidateCreate(item))
-				{
-					item.Id = Guid.NewGuid();
-					var (Success, Message) = await repository.AddAsync<UnitMeasure>(item);
-					return !Success && Message != "" ? Requests.Response(this, new ApiStatus(409), null, Message) : Requests.Response(this, new ApiStatus(200), null, Message);
-				}
-				else
-				{
-					return Requests.Response(this, new ApiStatus(409), ModelState, "");
-				}
-					
-			}
-			catch (Exception ex)
-			{
-				return Requests.Response(this, new ApiStatus(500), null, ex.Message);
-			}
-		}
-		// PATCH: api/UnitMeasure
-		[HttpPatch]
-		public async Task<IActionResult> UpdateAsync([FromBody] UnitMeasureDTO UnitMeasureDTO)
-		{
-			try
-			{
-				var existingItems = await repository.GetByIdAsync<UnitMeasure>(UnitMeasureDTO.Id);
-				if (existingItems == null)
-				{
-					return Requests.Response(this, new ApiStatus(409), null, Constant.Message.NotFound);
-				}
-				var item = mapper.Map<UnitMeasureDTO, UnitMeasure>(UnitMeasureDTO, existingItems);
-				if (ModelState.IsValid && ValidateUpdate(item))
-				{
-					var (Success, Message) = await repository.UpdateAsync<UnitMeasure>(item);
-					return !Success && Message != "" ? Requests.Response(this, new ApiStatus(409), null, Message) : Requests.Response(this, new ApiStatus(200), null, Message);
-				}
-				else
-				{
-					return Requests.Response(this, new ApiStatus(409), ModelState, "");
-				}
-					
-			}
-			catch (Exception ex)
-			{
-				return Requests.Response(this, new ApiStatus(500), null, ex.Message);
-			}
-		}
-		// DELETE: api/UnitMeasure/1
-		[HttpDelete("{id}")]
-		public async Task<IActionResult> DeleteAsync(Guid id)
-		{
-			try
-			{
-				if (ValidateDelete(id))
-				{
-					var existingItems = await repository.GetByIdAsync<UnitMeasure>(id);
-					if (existingItems == null)
-					{
-						return Requests.Response(this, new ApiStatus(409), null, Constant.Message.NotFound);
-					}
-					var (Success, Message) = await repository.DeleteAsync<UnitMeasure>(id);
-					return !Success && Message != "" ? Requests.Response(this, new ApiStatus(409), null, Message) : Requests.Response(this, new ApiStatus(200), null, Message);
-				}
-				else
-				{
-					return Requests.Response(this, new ApiStatus(409), ModelState, "");
-				}
-					
-			}
-			catch (Exception ex)
-			{
-				return Requests.Response(this, new ApiStatus(500), null, ex.Message);
-			}
-		}
-	}
+namespace Api.Controllers
+{
+    [Route("api/[controller]")]
+    [ApiController]
+    public class UnitMeasureController : BaseApiController
+    {
+        private readonly IUnitMeasureService unitMeasureService;
+        public UnitMeasureController(IUnitMeasureService unitMeasureService)
+        {
+            this.unitMeasureService = unitMeasureService;
+        }
+
+        [HttpGet("Id")]
+        public async Task<IActionResult> GetById(string Id)
+        {
+            var r = await unitMeasureService.GetByIdAsync(Id);
+            return Requests.Response(this, new Error.ApiStatus(200), r, Constant.Message.Success);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> AddAsync([FromBody] UnitMeasureDTO item)
+        {
+            if(this.ModelState.IsValid) throw new InvalidOperationException(Constant.Exception.InvalidModelState);
+            var r = await unitMeasureService.AddAsync(item);
+            return Requests.Response(this, new Error.ApiStatus(r.success ? 200 : 409), null, r.message);
+        }
+        
+        [HttpPatch]
+        public async Task<IActionResult> UpdateAsync([FromBody] UnitMeasureDTO item)
+        {
+            if (this.ModelState.IsValid) throw new InvalidOperationException(Constant.Exception.InvalidModelState);
+            var r = await unitMeasureService.UpdateAsync(item);
+            return Requests.Response(this, new Error.ApiStatus(r.success ? 200 : 409), null, r.message);
+        }
+        [HttpDelete("Id")]
+        public async Task<IActionResult> DeleteAsync(string Id)
+        {
+            var r = await unitMeasureService.DeleteAsync(Id);
+            return Requests.Response(this, new Error.ApiStatus(r.success ? 200 : 409), null, r.message);
+        }
+    }
 }

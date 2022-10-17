@@ -1,5 +1,4 @@
-﻿using BusinessCore;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure
 {
@@ -24,11 +23,7 @@ namespace Infrastructure
 
                 entity.HasIndex(e => e.UnitMeasureId, "IX_Item_UnitMeasureId");
 
-                entity.Property(e => e.Id).ValueGeneratedNever();
-
-                entity.Property(e => e.Code)
-                    .IsRequired()
-                    .HasMaxLength(20);
+                entity.Property(e => e.Id).HasMaxLength(40);
 
                 entity.Property(e => e.CreatedBy)
                     .IsRequired()
@@ -44,6 +39,10 @@ namespace Infrastructure
                     .IsRequired()
                     .HasMaxLength(1000);
 
+                entity.Property(e => e.UnitMeasureId)
+                    .IsRequired()
+                    .HasMaxLength(40);
+
                 entity.HasOne(d => d.UnitMeasure)
                     .WithMany(p => p.Items)
                     .HasForeignKey(d => d.UnitMeasureId);
@@ -56,11 +55,7 @@ namespace Infrastructure
                 entity.HasIndex(e => e.Id, "IX_UnitMeasureCode")
                     .IsUnique();
 
-                entity.Property(e => e.Id).ValueGeneratedNever();
-
-                entity.Property(e => e.Code)
-                    .IsRequired()
-                    .HasMaxLength(20);
+                entity.Property(e => e.Id).HasMaxLength(40);
 
                 entity.Property(e => e.CreatedBy)
                     .IsRequired()

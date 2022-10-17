@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace BusinessCore.Helper
+﻿namespace Shared.Helper
 {
     public static class Constant
     {
@@ -15,6 +9,15 @@ namespace BusinessCore.Helper
             public static string UpdateSuccess = "Success";
             public static string DeleteSuccess = "Success";
             public static string Success = "Success!";
+            public static string BadRequest = "Terjadi Kesalahan Pada System, Silahkan hubungi Administrator";
+            public static string Conflict = "Data tidak valid";
+
         }
+        
+        public class Exception
+        {
+            public static string InvalidModelState = "Property tidak valid!";
+        }
+
     }
 }

@@ -1,15 +1,15 @@
 using System;
 using System.Collections.Generic;
-using Shared;
 using System.ComponentModel.DataAnnotations;
-namespace Infrastructure
+namespace Shared
 {
   public partial class ItemDTO
   {
-      public Guid Id { get; set; }
-      public string Code { get; set; }
+      public string Id { get; set; }
+      [Required]
       public string Name { get; set; }
-      public Guid UnitMeasureId { get; set; }
+      [Required]
+      public string UnitMeasureId { get; set; }
       public string Description { get; set; }
       public string CreatedBy { get; set; }
       public DateTime CreatedAt { get; set; }

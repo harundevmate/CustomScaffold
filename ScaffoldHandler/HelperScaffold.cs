@@ -6,8 +6,10 @@
         public static string DirInfrastructure = $"{Directory.GetParent(Directory.GetCurrentDirectory()).Parent.FullName}\\CustomScaffold\\Infrastructure";
         public static string DirBusinessCore = $"{Directory.GetParent(Directory.GetCurrentDirectory()).Parent.FullName}\\CustomScaffold\\BusinessCore";
         public static string DirApi = $"{Directory.GetParent(Directory.GetCurrentDirectory()).Parent.FullName}\\CustomScaffold\\Api";
+        public static string DirShared = $"{Directory.GetParent(Directory.GetCurrentDirectory()).Parent.FullName}\\CustomScaffold\\Shared";
 
         public static string NamespaceInfrastructure = "Infrastructure";
         public static string NamespaceBusinessCore = "BusinessCore";
+        public static string NamespaceShared = "Shared";
     }
 }

@@ -1,13 +1,12 @@
 using System;
 using System.Collections.Generic;
-using Shared;
 using System.ComponentModel.DataAnnotations;
-namespace Infrastructure
+namespace Shared
 {
   public partial class UnitMeasureDTO
   {
-      public Guid Id { get; set; }
-      public string Code { get; set; }
+      public string Id { get; set; }
+      [Required]
       public string Name { get; set; }
       public string Description { get; set; }
       public string CreatedBy { get; set; }

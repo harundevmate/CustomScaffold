@@ -1,13 +1,8 @@
-﻿using BusinessCore.Helper;
+﻿using Infrastructure.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using Shared;
-using Shared.Interfaces;
-using System;
-using System.Collections.Generic;
-using System.Linq;
+using Shared.Helper;
 using System.Linq.Expressions;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Infrastructure.Data.Repository
 {
@@ -19,10 +14,14 @@ namespace Infrastructure.Data.Repository
             _dbContext = dbContext;
         }
 
-        public async Task<(bool Success, string Message)> AddAsync<T>(T entity) where T : BaseEntity
+        public async Task<(bool Success, string Message)> AddAsync<T>(T entity,bool AutoGenerateId = true) where T : BaseEntity
         {
             try
             {
+                if(AutoGenerateId)
+                {
+                    entity.Id = Guid.NewGuid().ToString();
+                }
                 _dbContext.Set<T>().Add(entity);
                 await _dbContext.SaveChangesAsync();
                 return (true, Constant.Message.AddSuccess);
@@ -56,7 +55,7 @@ namespace Infrastructure.Data.Repository
                 }
             }
         }
-        public async Task<(bool Success, string Message)> DeleteAsync<T>(Guid id) where T : BaseEntity
+        public async Task<(bool Success, string Message)> DeleteAsync<T>(string id) where T : BaseEntity
         {
             try
             {
@@ -86,7 +85,7 @@ namespace Infrastructure.Data.Repository
             return rItem;
         }
 
-        public async Task<T> GetByIdAsync<T>(Guid id) where T : BaseEntity
+        public async Task<T> GetByIdAsync<T>(string id) where T : BaseEntity
         {
             var query = _dbContext.Set<T>() as IQueryable<T>;
             query = query.Where(i => i.Id == id);

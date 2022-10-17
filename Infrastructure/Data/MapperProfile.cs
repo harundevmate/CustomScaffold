@@ -1,13 +1,13 @@
-﻿using AutoMapper;
-using BusinessCore;
-
-namespace Infrastructure.Data
+using AutoMapper;
+using Shared;
+namespace Infrastructure
 {
-    public class MapperProfile : MapperConfigurationExpression
-    {
-        public MapperProfile()
-        {
-            CreateMap<Item, ItemDTO>();
-        }
-    }
+	public class MapperProfile : MapperConfigurationExpression
+	{
+		public MapperProfile()
+		{
+			CreateMap<Item, ItemDTO>().ReverseMap();
+			CreateMap<UnitMeasure, UnitMeasureDTO>().ReverseMap();
+		}
+	}
 }
